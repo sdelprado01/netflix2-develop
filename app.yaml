@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: "Deployment"
+metadata:
+  name: netflix
+  labels:
+    app: netflix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netflix
+  template:
+    metadata:
+      labels:
+        app: netflix
+    spec:
+      containers:
+      - name: netflix
+        image: "eu.gcr.io/d4industry/netflix:latest"
+        resources:
+          limits:
+            memory: "512Mi"
+        ports:
+        - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: netflix-cip
+spec:
+  type: ClusterIP
+  selector:
+    app: netflix
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: netflix-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: netflix
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
